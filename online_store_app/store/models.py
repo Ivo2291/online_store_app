@@ -1,4 +1,5 @@
 from django.db import models
+from django.template.defaultfilters import slugify
 
 
 class Collection(models.Model):
@@ -8,7 +9,7 @@ class Collection(models.Model):
         max_length=TITLE_MAX_LENGTH,
     )
 
-    featured_products = models.ForeignKey(
+    featured_product = models.ForeignKey(
         'Product',
         on_delete=models.SET_NULL,
         related_name='+',
@@ -43,6 +44,12 @@ class Product(models.Model):
 
     inventory = models.IntegerField()
 
+    slug = models.SlugField(
+        unique=True,
+        blank=True,
+        editable=False,
+    )
+
     last_update = models.DateTimeField(
         auto_now=True,
     )
@@ -57,6 +64,14 @@ class Product(models.Model):
         Promotion,
         related_name='products',
     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if not self.slug:
+            self.slug = slugify(f'{self.title}-{self.id}')
+
+        return super().save(*args, **kwargs)
 
 
 class Customer(models.Model):
@@ -151,7 +166,7 @@ class OrderItem(models.Model):
 
     quantity = models.PositiveSmallIntegerField()
 
-    unit_price = models.DecimalField(
+    price = models.DecimalField(
         max_digits=UNIT_PRICE_MAX_DIGITS,
         decimal_places=UNIT_PRICE_DECIMAL_PLACES,
     )
