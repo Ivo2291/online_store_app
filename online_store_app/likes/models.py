@@ -1,27 +1,22 @@
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-
-class Tag(models.Model):
-    LABEL_MAX_LENGTH = 155
-
-    label = models.CharField(
-        max_length=LABEL_MAX_LENGTH,
-    )
+UserModel = get_user_model()
 
 
-class TaggedItem(models.Model):
-    tag = models.ForeignKey(
-        Tag,
+class LikedItem(models.Model):
+    user = models.ForeignKey(
+        UserModel,
         on_delete=models.CASCADE,
-        related_name='tagged_items',
+        related_name='liked_items',
     )
 
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='tagged_items',
+        related_name='liked_items',
     )
 
     object_id = models.PositiveIntegerField()

@@ -1,6 +1,27 @@
 from django.db import models
 
 
+class Collection(models.Model):
+    TITLE_MAX_LENGTH = 125
+
+    title = models.CharField(
+        max_length=TITLE_MAX_LENGTH,
+    )
+
+    featured_products = models.ForeignKey(
+        'Product',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        null=True,
+        blank=True,
+    )
+
+
+class Promotion(models.Model):
+    description = models.TextField()
+    discount = models.FloatField()
+
+
 class Product(models.Model):
     TITLE_MAX_LENGTH = 125
     PRICE_MAX_DIGITS = 6
@@ -24,6 +45,17 @@ class Product(models.Model):
 
     last_update = models.DateTimeField(
         auto_now=True,
+    )
+
+    collection = models.ForeignKey(
+        Collection,
+        on_delete=models.PROTECT,
+        related_name='products',
+    )
+
+    promotions = models.ManyToManyField(
+        Promotion,
+        related_name='products',
     )
 
 
@@ -94,6 +126,36 @@ class Order(models.Model):
         default=PAYMENT_STATUS_PENDING,
     )
 
+    customer = models.ForeignKey(
+        Customer,
+        on_delete=models.PROTECT,
+        related_name='orders',
+    )
+
+
+class OrderItem(models.Model):
+    UNIT_PRICE_MAX_DIGITS = 6
+    UNIT_PRICE_DECIMAL_PLACES = 2
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.PROTECT,
+        related_name='order_items',
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='order_items',
+    )
+
+    quantity = models.PositiveSmallIntegerField()
+
+    unit_price = models.DecimalField(
+        max_digits=UNIT_PRICE_MAX_DIGITS,
+        decimal_places=UNIT_PRICE_DECIMAL_PLACES,
+    )
+
 
 class Address(models.Model):
     STREET_MAX_LENGTH = 155
@@ -107,8 +169,30 @@ class Address(models.Model):
         max_length=CITY_MAX_LENGTH,
     )
 
-    customer = models.OneToOneField(
+    customer = models.ForeignKey(
         Customer,
         on_delete=models.CASCADE,
-        primary_key=True,
+        related_name='addresses',
     )
+
+
+class Cart(models.Model):
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+    )
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+    )
+
+    quantity = models.PositiveSmallIntegerField()
