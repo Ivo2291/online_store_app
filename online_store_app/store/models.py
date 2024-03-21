@@ -3,10 +3,10 @@ from django.template.defaultfilters import slugify
 
 
 class Collection(models.Model):
-    TITLE_MAX_LENGTH = 125
+    NAME_MAX_LENGTH = 125
 
-    title = models.CharField(
-        max_length=TITLE_MAX_LENGTH,
+    name = models.CharField(
+        max_length=NAME_MAX_LENGTH,
     )
 
     featured_product = models.ForeignKey(
@@ -17,6 +17,12 @@ class Collection(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name']
+
 
 class Promotion(models.Model):
     description = models.TextField()
@@ -24,12 +30,12 @@ class Promotion(models.Model):
 
 
 class Product(models.Model):
-    TITLE_MAX_LENGTH = 125
+    NAME_MAX_LENGTH = 125
     PRICE_MAX_DIGITS = 6
     PRICE_DECIMAL_PLACES = 2
 
-    title = models.CharField(
-        max_length=TITLE_MAX_LENGTH
+    name = models.CharField(
+        max_length=NAME_MAX_LENGTH
     )
 
     description = models.TextField(
@@ -44,8 +50,9 @@ class Product(models.Model):
 
     inventory = models.IntegerField()
 
+    # TODO: Fix this
     slug = models.SlugField(
-        unique=True,
+        # unique=True,
         blank=True,
         editable=False,
     )
@@ -69,9 +76,15 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
         if not self.slug:
-            self.slug = slugify(f'{self.title}-{self.id}')
+            self.slug = slugify(f'{self.name}-{self.id}')
 
         return super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['name', 'price']
 
 
 class Customer(models.Model):
@@ -116,6 +129,17 @@ class Customer(models.Model):
         choices=MEMBERSHIP_CHOICES,
         default=MEMBERSHIP_BRONZE,
     )
+
+    @property
+    def full_name(self):
+        if self.first_name and self.last_name:
+            return ' '.join([self.first_name, self.last_name])
+
+    def __str__(self):
+        return self.full_name
+
+    class Meta:
+        ordering = ['first_name', 'last_name']
 
 
 class Order(models.Model):
