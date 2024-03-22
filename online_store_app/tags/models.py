@@ -10,18 +10,19 @@ class Tag(models.Model):
         max_length=LABEL_MAX_LENGTH,
     )
 
+    def __str__(self):
+        return self.label
+
 
 class TaggedItem(models.Model):
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
-        related_name='tagged_items',
     )
 
     content_type = models.ForeignKey(
         ContentType,
         on_delete=models.CASCADE,
-        related_name='tagged_items',
     )
 
     object_id = models.PositiveIntegerField()

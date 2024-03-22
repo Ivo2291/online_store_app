@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.template.defaultfilters import slugify
 
@@ -31,6 +32,7 @@ class Promotion(models.Model):
 
 class Product(models.Model):
     NAME_MAX_LENGTH = 125
+    PRICE_MIN_VALUE = 1
     PRICE_MAX_DIGITS = 6
     PRICE_DECIMAL_PLACES = 2
 
@@ -46,9 +48,12 @@ class Product(models.Model):
     price = models.DecimalField(
         max_digits=PRICE_MAX_DIGITS,
         decimal_places=PRICE_DECIMAL_PLACES,
+        validators=[
+            MinValueValidator(PRICE_MIN_VALUE),
+        ],
     )
 
-    inventory = models.IntegerField()
+    inventory = models.PositiveIntegerField()
 
     # TODO: Fix this
     slug = models.SlugField(
@@ -64,12 +69,12 @@ class Product(models.Model):
     collection = models.ForeignKey(
         Collection,
         on_delete=models.PROTECT,
-        related_name='products',
     )
 
     promotions = models.ManyToManyField(
         Promotion,
-        related_name='products',
+        null=True,
+        blank=True,
     )
 
     def save(self, *args, **kwargs):
@@ -168,31 +173,32 @@ class Order(models.Model):
     customer = models.ForeignKey(
         Customer,
         on_delete=models.PROTECT,
-        related_name='orders',
     )
 
 
 class OrderItem(models.Model):
-    UNIT_PRICE_MAX_DIGITS = 6
-    UNIT_PRICE_DECIMAL_PLACES = 2
+    PRICE_MIN_VALUE = 1
+    PRICE_MAX_DIGITS = 6
+    PRICE_DECIMAL_PLACES = 2
 
     order = models.ForeignKey(
         Order,
         on_delete=models.PROTECT,
-        related_name='order_items',
     )
 
     product = models.ForeignKey(
         Product,
         on_delete=models.PROTECT,
-        related_name='order_items',
     )
 
     quantity = models.PositiveSmallIntegerField()
 
     price = models.DecimalField(
-        max_digits=UNIT_PRICE_MAX_DIGITS,
-        decimal_places=UNIT_PRICE_DECIMAL_PLACES,
+        max_digits=PRICE_MAX_DIGITS,
+        decimal_places=PRICE_DECIMAL_PLACES,
+        validators=[
+            MinValueValidator(PRICE_MIN_VALUE),
+        ],
     )
 
 
@@ -211,7 +217,6 @@ class Address(models.Model):
     customer = models.ForeignKey(
         Customer,
         on_delete=models.CASCADE,
-        related_name='addresses',
     )
 
 
@@ -225,13 +230,11 @@ class CartItem(models.Model):
     cart = models.ForeignKey(
         Cart,
         on_delete=models.CASCADE,
-        related_name='cart_items',
     )
 
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='cart_items',
     )
 
     quantity = models.PositiveSmallIntegerField()
