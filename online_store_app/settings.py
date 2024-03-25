@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
 
     'online_store_app.store',
     'online_store_app.store_custom',
@@ -115,4 +116,8 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+REST_FRAMEWORK = {
+    'COERCE_DECIMAL_TO_STRING': False,
 }

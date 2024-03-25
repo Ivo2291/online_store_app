@@ -69,6 +69,7 @@ class Product(models.Model):
     collection = models.ForeignKey(
         Collection,
         on_delete=models.PROTECT,
+        related_name='products',
     )
 
     promotions = models.ManyToManyField(
@@ -189,6 +190,7 @@ class OrderItem(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.PROTECT,
+        related_name='order_items',
     )
 
     quantity = models.PositiveSmallIntegerField()
