@@ -1,7 +1,7 @@
 from _decimal import Decimal
 from rest_framework import serializers
 
-from online_store_app.store.models import Product, Collection
+from online_store_app.store.models import Product, Collection, Review
 
 
 class CollectionSerializer(serializers.ModelSerializer):
@@ -9,7 +9,7 @@ class CollectionSerializer(serializers.ModelSerializer):
         model = Collection
         fields = ['pk', 'name', 'products_count']
 
-    products_count = serializers.SerializerMethodField('count_products')
+    products_count = serializers.SerializerMethodField(method_name='count_products')
 
     @staticmethod
     def count_products(collection: Collection):
@@ -31,3 +31,15 @@ class ProductSerializer(serializers.ModelSerializer):
         result = round(product.price * self.PRICE_TAX, 2)
 
         return result
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ['pk', 'date', 'name', 'description']
+
+    def create(self, validated_data):
+        product_id = self.context['product_id']
+        created_review = Review.objects.create(product_id=product_id, **validated_data)
+
+        return created_review
