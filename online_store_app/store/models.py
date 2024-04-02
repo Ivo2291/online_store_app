@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -55,13 +57,6 @@ class Product(models.Model):
 
     inventory = models.PositiveIntegerField()
 
-    # TODO: Fix this
-    slug = models.SlugField(
-        # unique=True,
-        blank=True,
-        editable=False,
-    )
-
     last_update = models.DateTimeField(
         auto_now=True,
     )
@@ -77,14 +72,6 @@ class Product(models.Model):
         null=True,
         blank=True,
     )
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        if not self.slug:
-            self.slug = slugify(f'{self.name}-{self.id}')
-
-        return super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -223,6 +210,10 @@ class Address(models.Model):
 
 
 class Cart(models.Model):
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid4,
+    )
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
@@ -232,6 +223,7 @@ class CartItem(models.Model):
     cart = models.ForeignKey(
         Cart,
         on_delete=models.CASCADE,
+        related_name='items',
     )
 
     product = models.ForeignKey(
@@ -240,6 +232,9 @@ class CartItem(models.Model):
     )
 
     quantity = models.PositiveSmallIntegerField()
+
+    class Meta:
+        unique_together = [['cart', 'product']]
 
 
 class Review(models.Model):

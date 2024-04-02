@@ -1,0 +1,12 @@
+from django_filters.rest_framework import FilterSet
+
+from online_store_app.store.models import Product
+
+
+class ProductFilterSet(FilterSet):
+    class Meta:
+        model = Product
+        fields = {
+            'collection_id': ['exact'],
+            'price': ['gt', 'lt']
+        }
