@@ -19,13 +19,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_filters',
-    'rest_framework',
 
-    'online_store_app.store',
-    'online_store_app.store_custom',
-    'online_store_app.tags',
-    'online_store_app.likes',
+    'online_store_app.core',
 ]
 
 MIDDLEWARE = [
@@ -95,6 +90,14 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'staticfiles'
+]
+
+MEDIA_URL = 'media/'
+
+MEDIA_ROOT = BASE_DIR / 'mediafiles'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGGING = {
@@ -116,8 +119,4 @@ LOGGING = {
             'propagate': False,
         },
     },
-}
-
-REST_FRAMEWORK = {
-    'COERCE_DECIMAL_TO_STRING': False,
 }
